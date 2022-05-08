@@ -1,0 +1,28 @@
+{
+  "name": "cd0046-sql-and-data-modeling-for-the-web",
+  "version": "1.0.0",
+  "description": "Fyyur -----",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "format": "prettier --write **/*.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svignesh93/cd0046-SQL-and-Data-Modeling-for-the-Web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/svignesh93/cd0046-SQL-and-Data-Modeling-for-the-Web/issues"
+  },
+  "homepage": "https://github.com/svignesh93/cd0046-SQL-and-Data-Modeling-for-the-Web#readme",
+  "dependencies": {
+    "bootstrap": "^5.1.3"
+  },
+  "devDependencies": {
+    "prettier": "2.6.2"
+  }
+}

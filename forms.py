@@ -236,4 +236,3 @@ class ArtistForm(Form):
     seeking_description = StringField(
             'seeking_description'
      )
-
