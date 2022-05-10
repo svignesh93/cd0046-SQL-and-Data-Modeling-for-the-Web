@@ -42,7 +42,7 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
-    shows = db.relationship("Show", backref="list", lazy=True)
+    shows = db.relationship("Show", backref="venue_shows_list", lazy=True)
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -58,7 +58,7 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
-    shows = db.relationship("Show", backref="list", lazy=True)
+    shows = db.relationship("Show", backref="artist_shows_list", lazy=True)
 
 class Show(db.Model):
   __tablename__ = 'Show'
@@ -67,8 +67,6 @@ class Show(db.Model):
   venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"), nullable=False)
   artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"), nullable=False)
   start_time = db.Column(db.DateTime, nullable=False, default=datetime.today())
-
-# TODO do a database migration.
 
 #----------------------------------------------------------------------------#
 # Filters.
