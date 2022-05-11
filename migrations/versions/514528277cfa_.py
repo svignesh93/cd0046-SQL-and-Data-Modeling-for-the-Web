@@ -32,7 +32,7 @@ def upgrade():
         sa.sql.column('name', sa.VARCHAR()),
         sa.sql.column('city', sa.VARCHAR(length=120)),
         sa.sql.column('state', sa.VARCHAR(length=120)),
-        sa.sql.column('genres', sa.VARCHAR(length=120)),
+        sa.sql.column('genres', sa.VARCHAR()),
         sa.sql.column('seeking_venue', sa.Boolean())
     )
     op.add_column('Artist', sa.Column('website_link', sa.String(length=120), nullable=True))
@@ -68,11 +68,11 @@ def upgrade():
     )
     op.alter_column('Artist', 'state', nullable=False)
     op.alter_column('Artist', 'genres',
-               existing_type=sa.VARCHAR(length=120),
+               existing_type=sa.VARCHAR(),
                nullable=True)
     op.execute(artist.update()
         .where(sa.text('genres IS NULL'))
-        .values({'genres':op.inline_literal('')})
+        .values({'genres':op.inline_literal('{}')})
     )
     op.alter_column('Artist', 'genres', nullable=False)
     
@@ -81,13 +81,13 @@ def upgrade():
         sa.sql.column('city', sa.VARCHAR(length=120)),
         sa.sql.column('state', sa.VARCHAR(length=120)),
         sa.sql.column('address', sa.VARCHAR(length=120)),
-        sa.sql.column('genres', sa.VARCHAR(length=120)),
+        sa.sql.column('genres', sa.VARCHAR()),
         sa.sql.column('seeking_talent', sa.Boolean())
     )
-    op.add_column('Venue', sa.Column('genres', sa.String(length=120), nullable=True))
+    op.add_column('Venue', sa.Column('genres', sa.String(), nullable=True))
     op.execute(venue.update()
         .where(sa.text('genres IS NULL'))
-        .values({'genres':op.inline_literal('')})
+        .values({'genres':op.inline_literal('{}')})
     )
     op.alter_column('Venue', 'genres', nullable=False)
     op.add_column('Venue', sa.Column('website_link', sa.String(length=120), nullable=True))
