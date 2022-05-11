@@ -7,7 +7,7 @@ import babel
 import logging
 import dateutil.parser
 from datetime import datetime
-from xmlrpc.client import Boolean
+from xmlrpc.client import boolean
 from flask import Flask, render_template, request, abort, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -244,7 +244,7 @@ def create_venue_submission():
       image_link = request.form["image_link"],
       facebook_link = request.form["facebook_link"],
       website_link = request.form["website_link"],
-      seeking_talent = request.form.get("seeking_talent", default=False, type=Boolean),
+      seeking_talent = request.form.get("seeking_talent", default=False, type=boolean),
       seeking_description = request.form["seeking_description"],
     )
     db.session.add(venue)
@@ -448,7 +448,7 @@ def create_artist_submission():
       image_link = request.form["image_link"],
       facebook_link = request.form["facebook_link"],
       website_link = request.form["website_link"],
-      seeking_venue = request.form.get("seeking_venue", default=False, type=Boolean),
+      seeking_venue = request.form.get("seeking_venue", default=False, type=boolean),
       seeking_description = request.form["seeking_description"],
     )
     db.session.add(artist)
@@ -522,15 +522,30 @@ def create_shows():
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
-  # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
-
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+  error = False
+  try:
+    show = Show(
+      venue_id = request.form.get("venue_id", type=int),
+      artist_id = request.form.get("artist_id", type=int),
+      start_time = request.form["start_time"],
+    )
+    db.session.add(show)
+    db.session.commit()
+  except:
+    db.session.rollback()
+    error = True
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    # e.g., on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Show could not be listed.')
+    abort(500)
+  else:
+    # on successful db insert, flash success
+    flash('Show was successfully listed!')
+    return render_template('pages/home.html')
 
 @app.errorhandler(404)
 def not_found_error(error):
