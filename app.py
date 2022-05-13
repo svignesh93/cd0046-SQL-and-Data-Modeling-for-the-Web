@@ -46,6 +46,24 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(120))
     shows = db.relationship("Show", backref="venue_shows_list", lazy=True)
 
+    # Equivalent of toString()
+    def __repr__(self) -> str:
+      return f"""<
+        id: {self.id}, 
+        name: {self.name}, 
+        city: {self.city}, 
+        state: {self.state}, 
+        address: {self.address}, 
+        phone: {self.phone}, 
+        genres: {self.genres}, 
+        image_link: {self.image_link}, 
+        facebook_link: {self.facebook_link}, 
+        website_link: {self.website_link}, 
+        seeking_talent: {self.seeking_talent}, 
+        seeking_description: {self.seeking_description}, 
+        shows: {self.shows}
+      >"""
+
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -62,6 +80,23 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(120))
     shows = db.relationship("Show", backref="artist_shows_list", lazy=True)
 
+    # Equivalent of toString()
+    def __repr__(self) -> str:
+      return f"""<
+        id: {self.id}, 
+        name: {self.name}, 
+        city: {self.city}, 
+        state: {self.state}, 
+        phone: {self.phone}, 
+        genres: {self.genres}, 
+        image_link: {self.image_link}, 
+        facebook_link: {self.facebook_link}, 
+        website_link: {self.website_link}, 
+        seeking_venue: {self.seeking_venue}, 
+        seeking_description: {self.seeking_description}, 
+        shows: {self.shows}
+      >"""
+
 class Show(db.Model):
   __tablename__ = 'Show'
 
@@ -69,6 +104,15 @@ class Show(db.Model):
   venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"), nullable=False)
   artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"), nullable=False)
   start_time = db.Column(db.DateTime, nullable=False, default=datetime.today())
+
+  # Equivalent of toString()
+  def __repr__(self) -> str:
+    return f"""<
+      id: {self.id}, 
+        venue_id: {self.venue_id}, 
+        artist_id: {self.artist_id}, 
+        start_time: {self.start_time}
+      >"""
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -98,30 +142,31 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+  data = []
+  venueLocList = Venue.query.distinct(Venue.state, Venue.city).all()
+  for venueLocation in venueLocList:
+    city = venueLocation.city
+    state = venueLocation.state
+
+    venues = []
+    current_time = datetime.now()
+    venueList = Venue.query.filter_by(city=city, state=state).all()
+
+    for venue in venueList:
+      shows = list(filter(lambda show: show.start_time > current_time, venue.shows))
+
+      venues.append({
+        "id" : venue.id,
+        "name" : venue.name,
+        "num_upcoming_shows" : shows.count
+      })
+
+    data.append({
+      "city" : city,
+      "state" : state,
+      "venues" : venues
+    })
+  return render_template('pages/venues.html', areas=data)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
