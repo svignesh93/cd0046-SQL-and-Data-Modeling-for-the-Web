@@ -113,7 +113,8 @@ class VenueForm(Form):
             ('Rock n Roll', 'Rock n Roll'),
             ('Soul', 'Soul'),
             ('Other', 'Other'),
-        ]
+        ],
+        coerce=str
     )
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
