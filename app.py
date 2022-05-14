@@ -458,22 +458,34 @@ def edit_artist_submission(artist_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
   form = VenueForm()
-  venue={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-  }
-  # TODO: populate form with values from venue with ID <venue_id>
-  return render_template('forms/edit_venue.html', form=form, venue=venue)
+  data = {}
+  error = False
+  try:
+    venue = Venue.query.get(venue_id)
+    form.process(obj = venue)
+
+    data["id"] = venue.id
+    data["name"] = venue.name
+    data["city"] = venue.city
+    data["state"] = venue.state
+    data["address"] = venue.address
+    data["phone"] = venue.phone
+    data["genres"] = venue.genres
+    data["image_link"] = venue.image_link
+    data["facebook_link"] = venue.facebook_link
+    data["website"] = venue.website_link
+    data["seeking_talent"] = venue.seeking_talent
+    data["seeking_description"] = venue.seeking_description
+  except:
+    error = True
+    print(sys.exc_info())
+  if error:
+    # e.g., on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Venue ' + str(venue_id) + ' not found.')
+    abort(404)
+  else:
+    return render_template('forms/edit_venue.html', form=form, venue=data)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
