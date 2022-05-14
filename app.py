@@ -44,7 +44,7 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
-    shows = db.relationship("Show", backref="venue_shows_list", lazy=True)
+    shows = db.relationship("Show", backref="venue_shows_list", lazy=True, cascade="all, delete-orphan")
 
     # Equivalent of toString()
     def __repr__(self) -> str:
@@ -78,7 +78,7 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
-    shows = db.relationship("Show", backref="artist_shows_list", lazy=True)
+    shows = db.relationship("Show", backref="artist_shows_list", lazy=True, cascade="all, delete-orphan")
 
     # Equivalent of toString()
     def __repr__(self) -> str:
@@ -299,14 +299,29 @@ def create_venue_submission():
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
     return render_template('pages/home.html')
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<int:venue_id>/delete', methods=['GET'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
-  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  error = False
+  try:
+    venue = Venue.query.get(venue_id)
 
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+    db.session.delete(venue)
+    db.session.commit()
+  except:
+    db.session.rollback()
+    error = True
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    # e.g., on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Venue ' + venue_id + ' could not be deleted. Please try again!')
+    abort(500)
+  else:
+    # on successful db delete, flash success
+    flash('Venue ' + str(venue_id)  + ' was successfully deleted!')
+    return render_template('pages/home.html')
 
 #  Artists
 #  ----------------------------------------------------------------
