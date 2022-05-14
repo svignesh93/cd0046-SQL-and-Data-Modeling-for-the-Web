@@ -248,11 +248,12 @@ def show_venue(venue_id):
     data["upcoming_shows_count"] = len(upcoming_shows)
   except:
     error = True
+    print(sys.exc_info())
   if error:
     # e.g., on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue id ' + str(venue_id) + ' not found.')
-    abort(500)
+    abort(404)
   else:
     return render_template('pages/show_venue.html', venue=data)
 
@@ -316,8 +317,8 @@ def delete_venue(venue_id):
   if error:
     # e.g., on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    flash('An error occurred. Venue ' + venue_id + ' could not be deleted. Please try again!')
-    abort(500)
+    flash('An error occurred. Venue ' + str(venue_id) + ' not found.')
+    abort(404)
   else:
     # on successful db delete, flash success
     flash('Venue ' + str(venue_id)  + ' was successfully deleted!')
@@ -406,11 +407,12 @@ def show_artist(artist_id):
     data["upcoming_shows_count"] = len(upcoming_shows)
   except:
     error = True
+    print(sys.exc_info())
   if error:
     # e.g., on unsuccessful db insert, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Artist id ' + str(artist_id) + ' not found.')
-    abort(500)
+    abort(404)
   else:
     return render_template('pages/show_artist.html', artist=data)
 
@@ -419,27 +421,38 @@ def show_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
   form = ArtistForm()
-  artist={
-    "id": 1,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
-  }
-  # TODO: populate form with fields from artist with ID <artist_id>
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
+  data = {}
+  error = False
+  try:
+    artist = Artist.query.get(artist_id)
+    form.process(obj = artist)
+
+    data["id"] = artist.id
+    data["name"] = artist.name
+    data["city"] = artist.city
+    data["state"] = artist.state
+    data["phone"] = artist.phone
+    data["genres"] = artist.genres
+    data["image_link"] = artist.image_link
+    data["facebook_link"] = artist.facebook_link
+    data["website"] = artist.website_link
+    data["seeking_venue"] = artist.seeking_venue
+    data["seeking_description"] = artist.seeking_description
+  except:
+    error = True
+    print(sys.exc_info())
+  if error:
+    # e.g., on unsuccessful db insert, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Artist ' + str(artist_id) + ' not found.')
+    abort(404)
+  else:
+    return render_template('forms/edit_artist.html', form=form, artist=data)
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
-
   return redirect(url_for('show_artist', artist_id=artist_id))
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
@@ -595,7 +608,6 @@ def not_found_error(error):
 @app.errorhandler(500)
 def server_error(error):
     return render_template('errors/500.html'), 500
-
 
 if not app.debug:
     file_handler = FileHandler('error.log')
