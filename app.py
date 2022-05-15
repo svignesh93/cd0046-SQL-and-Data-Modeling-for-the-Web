@@ -250,7 +250,7 @@ def show_venue(venue_id):
     error = True
     print(sys.exc_info())
   if error:
-    # e.g., on unsuccessful db insert, flash an error instead.
+    # e.g., on unsuccessful db query, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue id ' + str(venue_id) + ' not found.')
     abort(404)
@@ -315,7 +315,7 @@ def delete_venue(venue_id):
   finally:
     db.session.close()
   if error:
-    # e.g., on unsuccessful db insert, flash an error instead.
+    # e.g., on unsuccessful db delete, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue ' + str(venue_id) + ' not found.')
     abort(404)
@@ -409,7 +409,7 @@ def show_artist(artist_id):
     error = True
     print(sys.exc_info())
   if error:
-    # e.g., on unsuccessful db insert, flash an error instead.
+    # e.g., on unsuccessful db query, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Artist id ' + str(artist_id) + ' not found.')
     abort(404)
@@ -442,7 +442,7 @@ def edit_artist(artist_id):
     error = True
     print(sys.exc_info())
   if error:
-    # e.g., on unsuccessful db insert, flash an error instead.
+    # e.g., on unsuccessful db query, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Artist ' + str(artist_id) + ' not found.')
     abort(404)
@@ -451,9 +451,38 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
-  return redirect(url_for('show_artist', artist_id=artist_id))
+  error = False
+  try:
+    artist = Artist.query.get(artist_id)
+
+    artist.name = request.form["name"]
+    artist.city = request.form["city"]
+    artist.state = request.form["state"]
+    artist.phone = request.form["phone"]
+    artist.genres = request.form.getlist("genres")
+    artist.image_link = request.form["image_link"]
+    artist.facebook_link = request.form["facebook_link"]
+    artist.website_link = request.form["website_link"]
+    artist.seeking_venue = request.form.get("seeking_venue", default=False, type=boolean)
+    artist.seeking_description = request.form["seeking_description"]
+
+    db.session.add(artist)
+    db.session.commit()
+  except:
+    db.session.rollback()
+    error = True
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    # e.g., on unsuccessful db update, flash an error instead.
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+    flash('An error occurred. Artist ' + str(artist_id) + ' not found.')
+    abort(404)
+  else:
+    # on successful db update, flash success
+    flash('Artist ' + request.form['name'] + ' was successfully updated!')
+    return redirect(url_for('show_artist', artist_id=artist_id))
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
@@ -480,7 +509,7 @@ def edit_venue(venue_id):
     error = True
     print(sys.exc_info())
   if error:
-    # e.g., on unsuccessful db insert, flash an error instead.
+    # e.g., on unsuccessful db query, flash an error instead.
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     flash('An error occurred. Venue ' + str(venue_id) + ' not found.')
     abort(404)
