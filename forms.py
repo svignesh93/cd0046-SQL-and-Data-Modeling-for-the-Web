@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from enums import States, Genres
 from flask_wtf import FlaskForm as Form
@@ -56,6 +57,22 @@ class VenueForm(Form):
         'seeking_description'
     )
 
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        if not is_valid_phone(self.phone.data):
+            self.phone.errors.append('Invalid phone.')
+            return False
+        if not set(self.genres.data).issubset(dict(Genres.choices()).keys()):
+            self.genres.errors.append('Invalid genres.')
+            return False
+        if self.state.data not in dict(States.choices()).keys():
+            self.state.errors.append('Invalid state.')
+            return False
+        # if pass validation
+        return True
+
 class ArtistForm(Form):
     name = StringField(
         'name', validators=[DataRequired()]
@@ -89,3 +106,36 @@ class ArtistForm(Form):
     seeking_description = StringField(
             'seeking_description'
     )
+
+    def validate(self):
+        rv = Form.validate(self)
+        if not rv:
+            return False
+        if not is_valid_phone(self.phone.data):
+            self.phone.errors.append('Invalid phone.')
+            return False
+        if not set(self.genres.data).issubset(dict(Genres.choices()).keys()):
+            self.genres.errors.append('Invalid genres.')
+            return False
+        if self.state.data not in dict(States.choices()).keys():
+            self.state.errors.append('Invalid state.')
+            return False
+        # if pass validation
+        return True
+
+def is_valid_phone(number):
+    """ Validate phone numbers like:
+    1234567890 - no space
+    123.456.7890 - dot separator
+    123-456-7890 - dash separator
+    123 456 7890 - space separator
+
+    Patterns:
+    000 = [0-9]{3}
+    0000 = [0-9]{4}
+    -.  = ?[-. ]
+
+    Note: (? = optional) - Learn more: https://regex101.com/
+    """
+    regex = re.compile('^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$')
+    return regex.match(number)
