@@ -5,12 +5,31 @@
 import sys
 import babel
 import dateutil.parser
-from app import app, db
+
+from app import (
+  app,
+  db
+)
+
 from forms import *
 from datetime import datetime
 from xmlrpc.client import boolean
-from models import Venue, Artist, Show
-from flask import Blueprint, render_template, request, abort, flash, redirect, url_for
+
+from models import (
+  Venue,
+  Artist,
+  Show
+)
+
+from flask import (
+  Blueprint,
+  render_template,
+  request,
+  abort,
+  flash,
+  redirect,
+  url_for
+)
 
 #----------------------------------------------------------------------------#
 # Controller Config.

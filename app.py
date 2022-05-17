@@ -8,7 +8,11 @@ from flask import Flask
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from logging import Formatter, FileHandler
+
+from logging import (
+    Formatter,
+    FileHandler
+)
 
 #----------------------------------------------------------------------------#
 # App Config.

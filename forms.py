@@ -1,9 +1,27 @@
 import re
 from datetime import datetime
-from enums import States, Genres
+
+from enums import (
+    States,
+    Genres
+)
+
 from flask_wtf import FlaskForm as Form
-from wtforms import IntegerField, StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import NumberRange, DataRequired, URL
+
+from wtforms import (
+    IntegerField,
+    StringField,
+    SelectField,
+    SelectMultipleField,
+    DateTimeField,
+    BooleanField
+)
+
+from wtforms.validators import (
+    NumberRange,
+    DataRequired,
+    URL
+)
 
 class ShowForm(Form):
     artist_id = IntegerField(
