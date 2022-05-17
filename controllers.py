@@ -83,7 +83,7 @@ def venues():
       venues.append({
         "id" : venue.id,
         "name" : venue.name,
-        "num_upcoming_shows" : upcomingShows.count
+        "num_upcoming_shows" : len(upcomingShows)
       })
 
     data.append({
@@ -107,7 +107,7 @@ def search_venues():
     data.append({
       "id": venue.id,
       "name": venue.name,
-      "num_upcoming_shows": upcomingShows.count,
+      "num_upcoming_shows": len(upcomingShows)
     })
 
   result={
@@ -267,7 +267,7 @@ def search_artists():
     data.append({
       "id": artist.id,
       "name": artist.name,
-      "num_upcoming_shows": upcomingShows.count,
+      "num_upcoming_shows": len(upcomingShows)
     })
 
   result={
